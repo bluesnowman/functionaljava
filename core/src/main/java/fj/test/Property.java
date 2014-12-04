@@ -27,7 +27,6 @@ import static fj.test.CheckResult.passed;
 import static fj.test.CheckResult.propException;
 import static fj.test.CheckResult.proven;
 import static fj.test.Result.noResult;
-
 import static java.lang.Math.round;
 
 /**
@@ -184,7 +183,8 @@ public final class Property {
           break;
         }
       } catch (final Throwable t) {
-        genException(t, s, d);
+        res = genException(t, s, d);
+        break;
       }
     }
 

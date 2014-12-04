@@ -1,6 +1,7 @@
 package fj.data;
 
 import fj.F;
+import fj.F1Functions;
 import fj.P;
 import fj.P2;
 import fj.P3;
@@ -59,9 +60,7 @@ public final class TreeMap<K, V> implements Iterable<P2<K, V>> {
    * @return A new tree map with the given value mapped to the given key.
    */
   public TreeMap<K, V> set(final K k, final V v) {
-    final P3<Set<P2<K, Option<V>>>, Option<P2<K, Option<V>>>, Set<P2<K, Option<V>>>> x
-        = tree.split(P.p(k, Option.<V>none()));
-    return new TreeMap<K, V>(x._1().union(x._3().insert(P.p(k, Option.some(v)))));
+      return new TreeMap<K, V>(tree.insert(P.p(k, Option.some(v))));
   }
 
   /**
@@ -214,10 +213,10 @@ public final class TreeMap<K, V> implements Iterable<P2<K, V>> {
    *         and the optional value is the value associated with the given key if present, otherwise None.
    */
   public P3<Set<V>, Option<V>, Set<V>> split(final K k) {
-    final F<Set<P2<K, Option<V>>>, Set<V>> getSome = Option.<V>fromSome().o(P2.<K, Option<V>>__2())
-        .mapSet(tree.ord().comap(P.<K, Option<V>>p2().f(k).<V>o(Option.<V>some_())));
+    final F<Set<P2<K, Option<V>>>, Set<V>> getSome = F1Functions.mapSet(F1Functions.o(Option.<V>fromSome(), P2.<K, Option<V>>__2())
+        , tree.ord().comap(F1Functions.o(P.<K, Option<V>>p2().f(k), Option.<V>some_())));
     return tree.split(p(k, Option.<V>none())).map1(getSome).map3(getSome)
-        .map2(Option.<V>join().o(P2.<K, Option<V>>__2().mapOption()));
+        .map2(F1Functions.o(Option.<V>join(), F1Functions.mapOption(P2.<K, Option<V>>__2())));
   }
 
   /**
@@ -228,7 +227,7 @@ public final class TreeMap<K, V> implements Iterable<P2<K, V>> {
    */
   @SuppressWarnings({"unchecked"})
   public <W> TreeMap<K, W> map(final F<V, W> f) {
-    final F<P2<K, Option<V>>, P2<K, Option<W>>> g = P2.map2_(f.mapOption());
+    final F<P2<K, Option<V>>, P2<K, Option<W>>> g = P2.map2_(F1Functions.mapOption(f));
     final F<K, P2<K, Option<V>>> coord = flip(P.<K, Option<V>>p2()).f(Option.<V>none());
     final Ord<K> o = tree.ord().comap(coord);
     return new TreeMap<K, W>(tree.map(TreeMap.<K, Option<W>>ord(o), g));

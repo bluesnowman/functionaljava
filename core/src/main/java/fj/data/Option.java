@@ -16,6 +16,7 @@ import fj.P7;
 import fj.P8;
 import fj.Unit;
 import fj.Show;
+import fj.function.Effect1;
 
 import static fj.Function.*;
 import static fj.P.p;
@@ -225,9 +226,9 @@ public abstract class Option<A> implements Iterable<A> {
    *
    * @param f The side-effect to perform for the given element.
    */
-  public final void foreach(final Effect<A> f) {
+  public final void foreach(final Effect1<A> f) {
     if (isSome())
-      f.e(some());
+      f.f(some());
   }
 
   /**
@@ -479,6 +480,10 @@ public abstract class Option<A> implements Iterable<A> {
     return isSome() ? Either.<X, A>right(some()) : Either.<X, A>left(x);
   }
 
+    public final <X> Validation<X, A> toValidation(final X x) {
+        return Validation.validation(toEither(x));
+    }
+
   /**
    * A first-class version of the toEither method.
    *
@@ -666,6 +671,14 @@ public abstract class Option<A> implements Iterable<A> {
    */
   public static <T> Option<T> some(final T t) {
     return new Some<T>(t);
+  }
+
+  public static <T> F<T, Option<T>> none_() {
+    return new F<T, Option<T>>() {
+      public Option<T> f(final T t) {
+        return none();
+      }
+    };
   }
 
   /**

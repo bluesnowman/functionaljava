@@ -1,6 +1,7 @@
 package fj.data;
 
 import static fj.Bottom.error;
+import fj.F2Functions;
 import fj.Effect;
 import fj.Equal;
 import fj.F;
@@ -32,6 +33,7 @@ import static fj.Ord.intOrd;
 
 import fj.Ordering;
 import fj.control.Trampoline;
+import fj.function.Effect1;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -277,9 +279,9 @@ public abstract class List<A> implements Iterable<A> {
    *
    * @param f The side-effect to perform for the given element.
    */
-  public final void foreach(final Effect<A> f) {
+  public final void foreachDoEffect(final Effect1<A> f) {
     for (List<A> xs = this; xs.isNotEmpty(); xs = xs.tail()) {
-      f.e(xs.head());
+      f.f(xs.head());
     }
   }
 
@@ -402,7 +404,8 @@ public abstract class List<A> implements Iterable<A> {
   }
 
   /**
-   * Groups elements according to the given equality implementation.
+   * Groups elements according to the given equality implementation by longest
+   * sequence of equal elements.
    *
    * @param e The equality implementation for the elements.
    * @return A list of grouped elements.
@@ -637,7 +640,7 @@ public abstract class List<A> implements Iterable<A> {
   public final <B> Trampoline<B> foldRightC(final F2<A, B, B> f, final B b) {
     return Trampoline.suspend(new P1<Trampoline<B>>() {
       public Trampoline<B> _1() {
-        return isEmpty() ? Trampoline.pure(b) : tail().foldRightC(f, b).map(f.f(head()));
+        return isEmpty() ? Trampoline.pure(b) : tail().foldRightC(f, b).map(F2Functions.f(f, head()));
       }
     });
   }
@@ -1380,6 +1383,10 @@ public abstract class List<A> implements Iterable<A> {
         };
       }
     };
+  }
+
+  public static <A> F2<A, List<A>, List<A>> cons_() {
+      return (a, listA) -> cons(a, listA);
   }
 
   /**

@@ -168,7 +168,7 @@ public abstract class P2<A, B> {
    * @return the 1-product projection over the first element.
    */
   public final P1<A> _1_() {
-    return P2.<A, B>__1().lazy().f(this);
+    return F1Functions.lazy(P2.<A, B>__1()).f(this);
   }
 
   /**
@@ -177,28 +177,29 @@ public abstract class P2<A, B> {
    * @return the 1-product projection over the second element.
    */
   public final P1<B> _2_() {
-    return P2.<A, B>__2().lazy().f(this);
+    return F1Functions.lazy(P2.<A, B>__2()).f(this);
   }
 
-  /**
-   * Provides a memoising P2 that remembers its values.
-   *
-   * @return A P2 that calls this P2 once for any given element and remembers the value for subsequent calls.
-   */
-  public final P2<A, B> memo() {
-    return new P2<A, B>() {
-      private final P1<A> a = _1_().memo();
-      private final P1<B> b = _2_().memo();
+    /**
+     * Provides a memoising P2 that remembers its values.
+     *
+     * @return A P2 that calls this P2 once for any given element and remembers the value for subsequent calls.
+     */
+    public final P2<A, B> memo() {
+        P2<A, B> self = this;
+        return new P2<A, B>() {
+            private final P1<A> a = P1.memo(u -> self._1());
+            private final P1<B> b = P1.memo(u -> self._2());
 
-      public A _1() {
-        return a._1();
-      }
+            public A _1() {
+                return a._1();
+            }
 
-      public B _2() {
-        return b._1();
-      }
-    };
-  }
+            public B _2() {
+                return b._1();
+            }
+        };
+    }
 
   /**
    * A first-class version of the split function.
@@ -342,5 +343,9 @@ public abstract class P2<A, B> {
       }
     };
   }
+
+	public String toString() {
+		return Show.p2Show(Show.<A>anyShow(), Show.<B>anyShow()).showS(this);
+	}
 
 }
